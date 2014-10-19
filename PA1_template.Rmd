@@ -121,7 +121,7 @@ dev.off()
 ```
 **Figure 3.** *Time series plot of the average number of steps taken during 5-minute intervals across all days (a) NAs not imputed mean = `r format(meanPerDay,digits=3)` and median = `r format(medianPerDay,digits=3)` (b) Imputing NAs with mean for the day changes the statists to mean = `r format(meanPerDay1,digits=3)` and median = `r format(medianPerDay1,digits=3)`. If all values for a day are NAs, then mean is assumed to be 0.*
 
-**Imputing with NAs with mean lowers the daily Mean and Median number os steps taken.**
+**Imputing NAs with mean lowers the daily Mean and Median number of steps taken.**
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
