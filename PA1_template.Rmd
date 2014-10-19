@@ -1,77 +1,121 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
 output: 
-  html_document:
-    keep_md: true
+html_document:
+keep_md: true
 ---
-
-
-## Loading and preprocessing the data
+### Loading and preprocessing the data
 ```{r readData}
 df<- read.csv(unz("repdata-data-activity.zip", "activity.csv"), header=TRUE ,sep=",")
 df$DateField<-as.Date(df$date)
-df$Weekday<-weekdays(df$DateField)
 ```
 
-## What is mean total number of steps taken per day?
-Shown below is the histogram of the total number of steps taken per day.
+### What is mean total number of steps taken per day?
 ```{r createPlotSums}
 library(lattice)
 totalStepsByDate<-aggregate(df$steps, by=list(df$date),FUN=sum)
 names(totalStepsByDate)<-c("Date","Steps")
+meanPerDay<-mean(totalStepsByDate$Steps,na.rm = TRUE)
+medianPerDay<-median(totalStepsByDate$Steps,na.rm = TRUE)
 totalStepsPerDayPlot<-barchart(Steps ~ Date, data=totalStepsByDate,
-            main="Total Number of Steps taken Daily",
-            ylab="Total number of steps", xlab="Date", 
-            scales = list(y=list(tick.number=6), 
-                          x=list(cex=0.6,tick.number=7,rot=80)
-                          )
-            )
+                               main="Total Number of Steps taken Daily",
+                               ylab="Total number of steps", xlab="Date", 
+                               scales = list(y=list(tick.number=6), 
+                                             x=list(cex=0.6,tick.number=7,rot=80)
+                                             ),panel=function(x,y,...){
+                               panel.barchart(x,y,...)
+                               panel.text(x=x[15],y=21000,paste(c("  Mean Steps per day: ",format(meanPerDay,digits=5)),sep="",collapse=" "))
+                               panel.text(x=x[15],y=19500,paste(c("Median Steps per day: ",format(medianPerDay,digits=5)),sep="",collapse=" "))
+                               })
 print(totalStepsPerDayPlot)
 ```
+
+**Figure 1.** *Histogram of total number of steps taken in a day for a single individual over the period of study. Number steps in 5 minute intervals were collected for each day over 61 days.*
 
 ```{r printFig1, echo=FALSE, results='hide'}
 trellis.device(device = "png", filename="figures/Plot1-TotalStepsByDate.png",height=400, width=700)
 print(totalStepsPerDayPlot)
 dev.off()
 ```
-```{r computeMeanAndMedian, results='hide'}
-meanPerDay<-mean(totalStepsByDate$Steps,na.rm = TRUE)
-medianPerDay<-median(totalStepsByDate$Steps,na.rm = TRUE)
-```
-The daily **mean** total number of the steps taken per day are **`r as.integer(meanPerDay)`** and the **median** total nuber of steps taken per day are **`r as.integer(medianPerDay)`**.
+The daily **mean** total number of the steps taken per day is **`r as.integer(meanPerDay)`** and the **median** total number of steps taken per day is **`r as.integer(medianPerDay)`**.  *Missing values were excluded in computing the mean and median.*
 
-## What is the average daily activity pattern?
-
-1. Make a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
-
-2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-
+### What is the average daily activity pattern?
 ```{r createPlotMeans}
 library(lattice)
 avgActivity<-aggregate(df$steps, by=list(df$interval),FUN=mean, na.rm=TRUE)
 names(avgActivity)<-c("Interval","Activity")
 yMax.y<-max(avgActivity$Activity)
 yMax.x<-avgActivity$Interval[which.max(avgActivity$Activity)]
-avgActivitOver5Mins<-xyplot(Activity ~ Interval, data=avgActivity, type="l", 
-       main="Average activity over 5 minute intervals\n (Across all days)", 
-       xlab="Minutes", ylab="Average Activity (Number of Steps)",
-       panel=function(x,y,...){
-         panel.xyplot(x,y,...)
-         panel.abline(v =avgActivity$Interval[which.max(avgActivity$Activity)],col = "red", lwd = 2)
-         panel.text(x=yMax.x+700,y=yMax.y,labels=paste(c("Interval:",yMax.x),sep="", collapse=""))
-         panel.text(x=yMax.x+700,y=yMax.y-15,labels=paste(c("Activity:",format(yMax.y,digits=4)),sep="", collapse=""))
-         })
-print(avgActivitOver5Mins)
+yMax.time<-strftime( as.POSIXct( "1970-01-01" ) + as.difftime( yMax.x, units="mins" ), "%I:%M %p" )
+maxIntervalLabel<-paste(c("Maximum Activity Interval: ",yMax.x," (",yMax.time,")"),sep="", collapse="")
+maxActivityLabel<-paste(c("         Maximum Activity: ",format(yMax.y,digits=3)," Steps"),sep="", collapse="")
+avgActivityOver5Mins<-xyplot(Activity ~ Interval, data=avgActivity, type="l", 
+                             main="Average activity over 5 minute intervals\n (Across all days)", 
+                             xlab="Minutes", ylab="Average Activity (Number of Steps)",
+                             panel=function(x,y,...){
+                               panel.xyplot(x,y,...)
+                               panel.abline(v =yMax.x,col = "red", lwd = 1, lty="dashed")
+                               panel.text(x=yMax.x+800,y=yMax.y,labels=maxIntervalLabel)
+                               panel.text(x=yMax.x+800,y=yMax.y-15,labels=maxActivityLabel)
+                               })
+print(avgActivityOver5Mins)
 ````
 ````{r printFig2, echo=FALSE, results='hide'}
 trellis.device(device = "png", filename="figures/Plot2-AverageActivityOver5MinIntervals.png",height=400, width=700)
-print(avgActivitOver5Mins)
+print(avgActivityOver5Mins)
 dev.off()
 ```
 
+**Figure 2.** *Time series plot of the average number of steps taken during 5-minute intervals across all days. The plot show higher activity during the 800 to 930 minutes (1:20 PM to 3:15 PM), possibly due to vigorous exercise. (b) The 5-minute interval corresponding to `r yMax.x` minutes (around `r yMax.time`) had an average maximum of `r format(yMax.y,digits=3)` steps.*
 
-## Imputing missing values
+### Imputing missing values
+```{r}
+
+```
 
 
 
-## Are there differences in activity patterns between weekdays and weekends?
+
+
+### Are there differences in activity patterns between weekdays and weekends?
+
+```{r weekdayOrWeekend}
+library(lattice)
+df$DateField<-as.Date(df$date)
+df$DayOfWeek<-factor(weekdays(df$DateField))
+df$Weekday<-factor(weekdays(df$DateField))
+levels(df$Weekday)<-list(`weekday`=c("Monday","Tuesday","Wednesday","Thursday","Friday"), `weekend`=c("Saturday","Sunday"))
+avgStepsByWeekday<-aggregate(df$steps, by=list(df$interval,df$Weekday),FUN=mean, na.rm=TRUE)
+names(avgStepsByWeekday)<-c("Interval","Weekday","MeanSteps")
+weekdaysTable<-table(df$Weekday)/288
+weekdayPlot<-xyplot(MeanSteps ~ Interval|Weekday, data=avgStepsByWeekday, nrow=2,ncol=1, type="l", 
+                    main="Weekday or Weekend\n Average activity over 5 minute intervals\n (Across all days)", 
+                    xlab="Interval", ylab="Number of Steps")
+
+print(weekdayPlot)
+````
+````{r printFig4, echo=FALSE, results='hide'}
+trellis.device(device = "png", filename="figures/Plot4-WeekDyVsWeekendActivity.png",height=700, width=400)
+print(weekdayPlot)
+dev.off()
+```
+**Figure 4.** *Average activity pattern during weekdays and weekends. The plot show definitive higher acivity during the afternoon period, corresponding to about 800-950 minutes during weekdays(`r weekdaysTable[["weekday"]]`), while during weekends(`r weekdaysTable[["weekend"]]`) the activity was higher throughout the day. This is possibly due to a vigorous exercise schedule during weekdays that is no apparent during weekend.*
+
+```{r hideRefs, echo=FALSE, results='hide'}
+### see: http://www.stat.columbia.edu/~gelman/arm/missing.pdf
+### random.imp <- function (a){
+### missing <- is.na(a)
+### n.missing <- sum(missing)
+### a.obs <- a[!missing]
+##### imputed <- a
+##### imputed[missing] <- sample (a.obs, n.missing, replace=TRUE)
+##### return (imputed)
+##### }
+###### (To see how this function works, take a small dataset and evaluate the function line
+###### by line.) We use random.imp to create a completed data vector of earnings:
+###### R code earnings.imp <- random.imp (earnings)
+###### visualizing missing values marginplot(
+###### http://cran.r-project.org/web/packages/mice/mice.pdf
+###### http://teachpress.environmentalinformatics-marburg.de/2013/07/creating-publication-quality-graphs-in-r-7/
+
+```
