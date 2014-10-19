@@ -109,7 +109,8 @@ medianPerDay1<-median(totalStepsByDate1$StepsImp,na.rm = TRUE)
 library(ggplot2)
 library(reshape2)
 avgsAll2<-melt(data=avgsAll, id.vars="Interval")
-avgImpPlot<-ggplot(data = avgsAll2, aes(x = Interval, y = value, colour = variable)) + geom_line() + labs(x = "Minutes") + labs(y = "Number of steps") + labs(title = "Effect of imputing NAs\n with mean for the day")
+avgImpPlot<-ggplot(data = avgsAll2, aes(x = Interval, y = value, colour = variable)) + geom_line()
+avgImpPlot<-avgImpPlot  + labs(x = "Minutes") + labs(y = "Number of steps") + labs(title = "Effect of imputing NAs\n with mean for the day")
 
 print(avgImpPlot)
 ```
