@@ -26,7 +26,6 @@ totalStepsPerDayPlot<-barchart(Steps ~ Date, data=totalStepsByDate,
                           x=list(cex=0.6,tick.number=7,rot=80)
                           )
             )
-
 print(totalStepsPerDayPlot)
 ```
 
@@ -35,7 +34,6 @@ trellis.device(device = "png", filename="figures/Plot1-TotalStepsByDate.png",hei
 print(totalStepsPerDayPlot)
 dev.off()
 ```
-
 ```{r computeMeanAndMedian, results='hide'}
 meanPerDay<-mean(totalStepsByDate$Steps,na.rm = TRUE)
 medianPerDay<-median(totalStepsByDate$Steps,na.rm = TRUE)
@@ -54,7 +52,7 @@ avgActivity<-aggregate(df$steps, by=list(df$interval),FUN=mean, na.rm=TRUE)
 names(avgActivity)<-c("Interval","Activity")
 yMax.y<-max(avgActivity$Activity)
 yMax.x<-avgActivity$Interval[which.max(avgActivity$Activity)]
-xyplot(Activity ~ Interval, data=avgActivity, type="l", 
+avgActivitOver5Mins<-xyplot(Activity ~ Interval, data=avgActivity, type="l", 
        main="Average activity over 5 minute intervals\n (Across all days)", 
        xlab="Minutes", ylab="Average Activity (Number of Steps)",
        panel=function(x,y,...){
@@ -63,12 +61,11 @@ xyplot(Activity ~ Interval, data=avgActivity, type="l",
          panel.text(x=yMax.x+700,y=yMax.y,labels=paste(c("Interval:",yMax.x),sep="", collapse=""))
          panel.text(x=yMax.x+700,y=yMax.y-15,labels=paste(c("Activity:",format(yMax.y,digits=4)),sep="", collapse=""))
          })
-```
-
-
-```{r printFig2, echo=FALSE, results='hide'}
+print(avgActivitOver5Mins)
+````
+````{r printFig2, echo=FALSE, results='hide'}
 trellis.device(device = "png", filename="figures/Plot2-AverageActivityOver5MinIntervals.png",height=400, width=700)
-print(totalStepsPerDayPlot)
+print(avgActivitOver5Mins)
 dev.off()
 ```
 

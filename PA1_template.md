@@ -23,12 +23,10 @@ totalStepsPerDayPlot<-barchart(Steps ~ Date, data=totalStepsByDate,
                           x=list(cex=0.6,tick.number=7,rot=80)
                           )
             )
-
 print(totalStepsPerDayPlot)
 ```
 
 ![](./PA1_template_files/figure-html/createPlotSums-1.png) 
-
 
 
 
@@ -51,7 +49,7 @@ avgActivity<-aggregate(df$steps, by=list(df$interval),FUN=mean, na.rm=TRUE)
 names(avgActivity)<-c("Interval","Activity")
 yMax.y<-max(avgActivity$Activity)
 yMax.x<-avgActivity$Interval[which.max(avgActivity$Activity)]
-xyplot(Activity ~ Interval, data=avgActivity, type="l", 
+avgActivitOver5Mins<-xyplot(Activity ~ Interval, data=avgActivity, type="l", 
        main="Average activity over 5 minute intervals\n (Across all days)", 
        xlab="Minutes", ylab="Average Activity (Number of Steps)",
        panel=function(x,y,...){
@@ -60,11 +58,10 @@ xyplot(Activity ~ Interval, data=avgActivity, type="l",
          panel.text(x=yMax.x+700,y=yMax.y,labels=paste(c("Interval:",yMax.x),sep="", collapse=""))
          panel.text(x=yMax.x+700,y=yMax.y-15,labels=paste(c("Activity:",format(yMax.y,digits=4)),sep="", collapse=""))
          })
+print(avgActivitOver5Mins)
 ```
 
 ![](./PA1_template_files/figure-html/createPlotMeans-1.png) 
-
-
 
 
 
