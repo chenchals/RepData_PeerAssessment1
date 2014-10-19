@@ -1,13 +1,9 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r readData}
+
+```r
 df<- read.csv(unz("repdata-data-activity.zip", "activity.csv"), header=TRUE ,sep=",")
 df$DateField<-as.Date(df$date)
 df$Weekday<-weekdays(df$DateField)
@@ -15,7 +11,8 @@ df$Weekday<-weekdays(df$DateField)
 
 ## What is mean total number of steps taken per day?
 Shown below is the histogram of the total number of steps taken per day.
-```{r createPlotSums}
+
+```r
 library(lattice)
 totalStepsByDate<-aggregate(df$steps, by=list(df$date),FUN=sum)
 names(totalStepsByDate)<-c("Date","Steps")
@@ -30,19 +27,17 @@ totalStepsPerDayPlot<-barchart(Steps ~ Date, data=totalStepsByDate,
 print(totalStepsPerDayPlot)
 ```
 
-```{r printFig1, echo=FALSE, results='hide'}
-trellis.device(device = "png", filename="figures/Plot1-TotalStepsByDate.png",height=400, width=700)
-print(totalStepsPerDayPlot)
-dev.off()
-```
+![](./PA1_template_files/figure-html/createPlotSums-1.png) 
 
-```{r computeMeanAndMedian, results='hide'}
+
+
+
+```r
 meanPerDay<-mean(totalStepsByDate$Steps,na.rm = TRUE)
 medianPerDay<-median(totalStepsByDate$Steps,na.rm = TRUE)
 ```
-The daily **mean** total number of the steps taken per day are **`r as.integer(meanPerDay)`** and the **median** total nuber of steps taken per day are **`r as.integer(medianPerDay)`**.
-```{r}
-```
+The daily **mean** total number of the steps taken per day are **10766** and the **median** total nuber of steps taken per day are **10765**.
+
 ## What is the average daily activity pattern?
 
 
