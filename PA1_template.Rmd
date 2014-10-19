@@ -69,13 +69,58 @@ dev.off()
 **Figure 2.** *Time series plot of the average number of steps taken during 5-minute intervals across all days. The plot show higher activity during the 800 to 930 minutes (1:20 PM to 3:15 PM), possibly due to vigorous exercise. (b) The 5-minute interval corresponding to `r yMax.x` minutes (around `r yMax.time`) had an average maximum of `r format(yMax.y,digits=3)` steps.*
 
 ### Imputing missing values
-```{r}
+```{r imputingNas }
+dfi<- read.csv(unz("repdata-data-activity.zip", "activity.csv"), header=TRUE ,sep=",")
+dfi$DateField<-as.Date(dfi$date)
+dfi$stepsImp<-dfi$steps
 
+dateStr<-unique(dfi$DateField)
+for (i in 1:length(dateStr)){
+  a<-dfi$stepsImp[dfi$DateField==dateStr[i]]
+  #atleast one NA and 
+  if(any(is.na(a))){
+    #has atleast one value
+    if(any(!is.na(a))){
+      a<-dfi$stepsImp[dfi$DateField==dateStr[i]]
+      amean<-mean(a,na.rm=TRUE)
+      a[is.na(a)==TRUE]=amean
+      dfi$stepsImp[dfi$DateField==dateStr[i]]=a
+      }else{
+        # has all NAs ==> replace with 0
+        dfi$stepsImp[dfi$DateField==dateStr[i]]=0
+        }
+    }
+  }
 ```
 
+There are `r sum(is.na(dfi$steps))` NAs out of total of `r length(dfi$steps)` observations. Since NAs affect the summary statstics, we explore its variation upon replacing NAs. Current plot shows the affect of replacing the NA values with value for daily mean number of steps for that day. If NAs are observed for an entire day, the mean is assumed to be 0, and all NAs are replaced by 0.
+```{r avgDailyImputedVsNormal}
+avgsAll<-aggregate(dfi$steps, by=list(dfi$interval),FUN=mean, na.rm=TRUE)
+avgImputed<-aggregate(dfi$stepsImp, by=list(dfi$interval),FUN=mean, na.rm=TRUE)
+avgsAll$imp<-avgImputed$x
+names(avgsAll)<-c("Interval","Steps","Steps-MeanImputed")
 
+totalStepsByDate1<-aggregate(dfi$stepsImp, by=list(dfi$date),FUN=sum)
+names(totalStepsByDate1)<-c("Date","StepsImp")
 
+meanPerDay1<-mean(totalStepsByDate1$StepsImp,na.rm = TRUE)
+medianPerDay1<-median(totalStepsByDate1$StepsImp,na.rm = TRUE)
 
+library(ggplot2)
+library(reshape2)
+avgsAll2<-melt(data=avgsAll, id.vars="Interval")
+avgImpPlot<-ggplot(data = avgsAll2, aes(x = Interval, y = value, colour = variable)) + geom_line() + labs(x = "Minutes") + labs(y = "Number of steps") + labs(title = "Effect of imputing NAs\n with mean for the day")
+
+print(avgImpPlot)
+```
+````{r printFig3, echo=FALSE, results='hide'}
+trellis.device(device = "png", filename="figures/Plot3-AverageActivityAffectOfImupting.png",height=400, width=700)
+print(avgImpPlot)
+dev.off()
+```
+**Figure 3.** *Time series plot of the average number of steps taken during 5-minute intervals across all days (a) NAs not imputed mean = `r format(meanPerDay,digits=3)` and median = `r format(medianPerDay,digits=3)` (b) Imputing NAs with mean for the day changes the statists to mean = `r format(meanPerDay1,digits=3)` and median = `r format(medianPerDay1,digits=3)`. If all values for a day are NAs, then mean is assumed to be 0.*
+
+**Imputing with NAs with mean lowers the daily Mean and Median number os steps taken.**
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
